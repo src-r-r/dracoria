@@ -1,2 +1,2 @@
 # dracoria
-Mystic side where dragons thrive.
+Mystic side realm where dragons thrive.
