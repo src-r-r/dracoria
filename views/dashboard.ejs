@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <% include partials/_head.ejs %>
+  <title>Dashboard</title>
+</head>
+<body>
+  <% include partials/_header.ejs %>
+
+  <div class="container mt-4">
+    <h1>Dashboard</h1>
+    <div id="dragonStatus">
+      <!-- Dragon status will be loaded here -->
+    </div>
+    <div id="gardenStatus">
+      <!-- Garden status will be loaded here -->
+    </div>
+  </div>
+
+  <% include partials/_footer.ejs %>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <% include partials/_head.ejs %>
+  <title>Settings</title>
+</head>
+<body>
+  <% include partials/_header.ejs %>
+
+  <div class="container mt-4">
+    <h1>Settings</h1>
+    <form action="/auth/settings" method="POST">
+      <div class="mb-3">
+        <label for="openAIKey" class="form-label">OpenAI API Key</label>
+        <input type="text" class="form-control" id="openAIKey" name="openAIKey" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+  </div>
+
+  <% include partials/_footer.ejs %>
+</body>
+</html>
