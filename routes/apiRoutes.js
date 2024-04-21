@@ -60,6 +60,28 @@ router.post('/dragon/chat', isAuthenticated, async (req, res) => {
   }
 });
 
+// delete conversation history with dragon
+router.delete('/dragon/conversation', isAuthenticated, async (req, res) => {
+  try {
+    const { dragonId } = req.query; // Assume dragonId is passed as a query parameter
+    if (!dragonId) {
+      logger.info('Dragon ID is missing in the request.');
+      return res.status(400).send('Dragon ID is required.');
+    }
+    // Validate dragonId belongs to the authenticated user
+    const dragonExists = await Dragon.findOne({ _id: dragonId, userId: req.session.userId });
+    if (!dragonExists) {
+      logger.info('Dragon not found or does not belong to the user.');
+      return res.status(403).send('Unauthorized access to the dragon.');
+    }
+    const conversation = await chatService.deleteConversationHistory(req.session.userId, dragonId);
+    res.json({ conversation });
+  } catch (error) {
+    logger.error('Error deleting conversation history:', error);
+    res.status(500).send('Error deleting conversation history');
+  }
+});
+
 router.get('/dragon/conversation', isAuthenticated, async (req, res) => {
   try {
     const { dragonId } = req.query; // Assume dragonId is passed as a query parameter

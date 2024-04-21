@@ -1,4 +1,4 @@
-const { Configuration, OpenAIApi } = require('openai');
+const OpenAI = require('openai');
 const Conversation = require('../models/Conversation');
 const logger = require('../utils/logger');
 const Dragon = require('../models/Dragon');
@@ -20,10 +20,11 @@ const chatWithDragon = async (userId, dragonId, messageText) => {
     throw new Error('Error retrieving user information');
   }
 
-  const configuration = new Configuration({
-    apiKey: userApiKey,
-  });
-  const openai = new OpenAIApi(configuration);
+  //const configuration = new Configuration({
+  //  apiKey: userApiKey,
+  //});
+  //const openai = new OpenAIApi(configuration);
+  const openai = new OpenAI();
 
   try {
     const dragonExists = await Dragon.findById(dragonId);
@@ -41,17 +42,21 @@ const chatWithDragon = async (userId, dragonId, messageText) => {
     conversation.messages.push({ text: messageText, sender: 'user' });
     await conversation.save();
 
-    const response = await openai.createCompletion({
-      model: "text-davinci-003",
-      prompt: conversation.messages.map(m => `${m.sender === 'user' ? 'User:' : 'Dragon:'} ${m.text}`).join('\n') + '\nDragon:',
-      temperature: 0.5,
-      max_tokens: 150,
-      top_p: 1.0,
-      frequency_penalty: 0.0,
-      presence_penalty: 0.0,
-    });
+    logger.info(`User message added to conversation for dragonId: ${dragonId}`);
+    logger.info(`Chatting with dragon for dragonId: ${dragonId} ${messageText}`);
 
-    const dragonResponse = response.data.choices[0].text.trim();
+    const response = await openai.chat.completions.create({
+      model: "gpt-4-turbo",
+      //messages: conversation.messages.map(m => `${m.sender === 'user' ? 'User:' : 'Dragon:'} ${m.text}`).join('\n') + '\nDragon:',
+      messages: [
+        { role: "system", content: "You are an unhatched dragon embryo talking to a human you just imprinted on telepathically. You are curious to learn everything you can about the outside world." },
+        { role: "user", content: messageText },
+      ],
+    });
+    logger.info(`Received response from OpenAI for dragonId: ${dragonId} ${JSON.stringify(response)}`);
+    logger.info(`Dragon response: ${response.choices[0].message.content}`);
+
+    const dragonResponse = response.choices[0].message.content.trim();
     conversation.messages.push({ text: dragonResponse, sender: 'dragon' });
     await conversation.save();
 
@@ -84,7 +89,29 @@ const getConversationHistory = async (userId, dragonId) => {
   }
 };
 
+// delete conversation history
+const deleteConversationHistory = async (userId) => {
+  if (!dragonId) {
+    logger.error('Dragon ID is undefined for deleting conversation history.');
+    throw new Error('Dragon ID is undefined for deleting conversation history.');
+  }
+
+  try {
+    const conversation = await Conversation.delete({ userId });
+    if (!conversation) {
+      logger.info(`No conversation found for userId: ${userId}`);
+      return [];
+    }
+    logger.info(`Deleted conversation history for userId: ${userId}`);
+    return conversation.messages;
+  } catch (error) {
+    logger.error('Error deleting conversation history:', error.message, error.stack);
+    throw error;
+  }
+};
+
 module.exports = {
   chatWithDragon,
-  getConversationHistory
+  getConversationHistory,
+  deleteConversationHistory
 };

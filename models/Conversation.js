@@ -10,7 +10,7 @@ const conversationSchema = new mongoose.Schema({
   }]
 });
 
-conversationSchema.pre('save', function(next) {
+conversationSchema.pre('save', function (next) {
   if (this.messages.length > 1000) { // Assuming a limit to prevent document from getting too large
     console.log('Conversation length exceeds the maximum limit. Trimming older messages.');
     this.messages = this.messages.slice(-1000); // Keep the last 1000 messages
@@ -18,7 +18,7 @@ conversationSchema.pre('save', function(next) {
   next();
 });
 
-conversationSchema.post('save', function(error, doc, next) {
+conversationSchema.post('save', function (error, doc, next) {
   if (error) {
     console.error('Error saving conversation:', error);
     next(error);
@@ -26,5 +26,17 @@ conversationSchema.post('save', function(error, doc, next) {
     next();
   }
 });
+
+// delete conversation by userId
+conversationSchema.statics.delete = async function (userId) {
+  try {
+    const conversation = await this.deleteMany({ userId });
+    console.log(`Deleted conversation history for userId: ${userId}`);
+    return conversation;
+  } catch (error) {
+    console.error('Error deleting conversation history:', error);
+    throw error;
+  }
+};
 
 module.exports = mongoose.model('Conversation', conversationSchema);
