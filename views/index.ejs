@@ -45,16 +45,42 @@
       document.addEventListener('DOMContentLoaded', function () {
         fetchConversationHistory();
 
+        document.getElementById('messageInput').addEventListener('keypress', function (event) {
+          console.log('Key pressed:', event.key)
+          if (event.key === 'Enter') {
+            event.preventDefault(); // prevent the default action (scroll / move caret)
+            sendMessage(); // call your function to submit the text
+          }
+        });
+
         window.sendMessage = function () {
+          // disable the Send button
+          //document.getElementById('send').disabled = true;
+
           const message = document.getElementById('messageInput').value;
+
+          // add message from user
+          document.getElementById('conversationHistory').innerHTML += `<div><strong>You:</strong> ${message}</div>`;
+
+          // scroll to the bottom of the conversation history
+          const conversationHistory = document.getElementById('conversationHistory');
+          conversationHistory.scrollTop = conversationHistory.scrollHeight;
+
+          document.getElementById('messageInput').value = ''; // Clear input after sending
+
           const dragonId = document.getElementById('dragonId') ? document.getElementById('dragonId').value : null;
           if (dragonId) {
             axios.post('/api/dragon/chat', { message: message, dragonId: dragonId })
               .then(response => {
                 const data = response.data;
                 console.log('Message from dragon:', data);
-                document.getElementById('conversationHistory').innerHTML += `<div><strong>You:</strong> ${message}</div><div><strong>Dragon:</strong> ${data.reply.dragonMessage}</div>`;
-                document.getElementById('messageInput').value = ''; // Clear input after sending
+
+                // add message from dragon
+                document.getElementById('conversationHistory').innerHTML += `<div><strong>Dragon:</strong> ${data.reply.dragonMessage}</div>`;
+
+                // scroll to the bottom of the conversation history
+                const conversationHistory = document.getElementById('conversationHistory');
+                conversationHistory.scrollTop = conversationHistory.scrollHeight;
               })
               .catch(error => {
                 console.error('Error sending message to dragon:', error);
