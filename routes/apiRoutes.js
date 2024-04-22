@@ -5,6 +5,7 @@ const Dragon = require('../models/Dragon');
 const Garden = require('../models/Garden');
 const chatService = require('../services/chatService'); // Assuming chatService is implemented as described
 const gardenService = require('../services/gardenService');
+const dragonService = require('../services/dragonService');
 const userBalanceService = require('../services/userBalanceService'); // Import userBalanceService
 const logger = require('../utils/logger'); // Import logger utility
 
@@ -121,7 +122,7 @@ router.post('/garden/pick-fruit', isAuthenticated, async (req, res) => {
 
 router.post('/dragon/give-juice', isAuthenticated, async (req, res) => {
   try {
-    const result = await userBalanceService.giveLavaJuiceToDragon(req.session.userId);
+    const result = await dragonService.giveLavaJuiceToDragon(req.session.userId);
     if (!result) {
       logger.error(`Error giving lava juice to dragon for userId: ${req.session.userId}: Insufficient lava juice balance or no dragon egg found.`);
       return res.status(400).send('Insufficient lava juice balance or no dragon egg found.');
