@@ -1,5 +1,5 @@
 const Garden = require('../models/Garden');
-const UserBalance = require('../models/UserBalance'); // Importing the UserBalance model
+const User = require('../models/User'); // Importing the User model
 const mongoose = require('mongoose');
 const logger = require('../utils/logger'); // Assuming there's a logger utility based on the comprehensive codebase insight principle
 const userBalanceService = require('./userBalanceService');
@@ -50,8 +50,10 @@ async function checkAndGrowFruits() {
 }
 
 async function pickFruit(userId) {
+  console.log("Okay, picking fruit now ..")
   try {
     const garden = await Garden.findOne({ userId: userId });
+    console.log("found garden: ", garden);
     if (!garden) {
       logger.error(`Garden not found for userId: ${userId}`);
       throw new Error('Garden not found');
@@ -63,9 +65,13 @@ async function pickFruit(userId) {
     garden.fruitCount -= 1;
     garden.fruitGrowthTimestamp = new Date(); // Reset growth timestamp
     await garden.save();
+    console.log("garden saved ...")
+
     await userBalanceService.increaseLavaJuice(userId, 1); // Increase lava juice by 1
+    console.log("lava juice increased ...")
+
     logger.info(`Fruit picked from garden for userId: ${userId}. Lava juice increased.`);
-    return { fruitCount: garden.fruitCount, lavaJuiceBalance: (await UserBalance.findOne({ userId })).lavaJuice }; // Correctly returning the updated values
+    return { fruitCount: garden.fruitCount, lavaJuiceBalance: (await User.findOne({ _id: userId })).lavaJuice }; // Correctly returning the updated values
   } catch (error) {
     logger.error(`Error picking fruit for userId: ${userId}: ${error.message}`, error);
     throw error;

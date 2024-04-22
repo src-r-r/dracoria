@@ -8,10 +8,11 @@ const userSchema = new mongoose.Schema({
   openAIKey: { type: String }, // Users can input their OpenAI API key via the application interface
   dragon: { type: mongoose.Schema.Types.ObjectId, ref: 'Dragon' },
   garden: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Garden' }],
-  isAdmin: { type: Boolean, default: false } // Indicates if the user has admin privileges
+  isAdmin: { type: Boolean, default: false }, // Indicates if the user has admin privileges
+  lavaJuice: { type: Number, default: 0 }
 });
 
-userSchema.pre('save', function(next) {
+userSchema.pre('save', function (next) {
   const user = this;
   if (!user.isModified('password')) return next();
   bcrypt.hash(user.password, 10, (err, hash) => {
@@ -25,7 +26,7 @@ userSchema.pre('save', function(next) {
 });
 
 // Error handling for saving user with potentially conflicting unique fields
-userSchema.post('save', function(error, doc, next) {
+userSchema.post('save', function (error, doc, next) {
   if (error.name === 'MongoError' && error.code === 11000) {
     next(new Error('There was a duplicate key error'));
   } else {

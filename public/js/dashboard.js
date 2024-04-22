@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', function () {
         <p>Stage: ${dragonResponse.data.stage}</p>
         <p>Hunger: ${dragonResponse.data.hunger}</p>
         <p>Happiness: ${dragonResponse.data.happiness}</p>
+        <p>Energy: ${dragonResponse.data.energy}</p>
+        <p>Experience Points: ${dragonResponse.data.experiencePoints}</p>
       `;
 
       const gardenResponse = await axios.get('/api/garden/status');
