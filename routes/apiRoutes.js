@@ -4,6 +4,8 @@ const { isAuthenticated } = require('./middleware/authMiddleware');
 const Dragon = require('../models/Dragon');
 const Garden = require('../models/Garden');
 const chatService = require('../services/chatService'); // Assuming chatService is implemented as described
+const gardenService = require('../services/gardenService');
+const userBalanceService = require('../services/userBalanceService'); // Import userBalanceService
 const logger = require('../utils/logger'); // Import logger utility
 
 router.get('/dragon/status', isAuthenticated, async (req, res) => {
@@ -100,6 +102,55 @@ router.get('/dragon/conversation', isAuthenticated, async (req, res) => {
   } catch (error) {
     logger.error('Error fetching conversation history:', error);
     res.status(500).send('Error fetching conversation history');
+  }
+});
+
+router.post('/garden/pick-fruit', isAuthenticated, async (req, res) => {
+  try {
+    const result = await gardenService.pickFruit(req.session.userId);
+    if (!result) {
+      logger.error(`Error picking fruit for userId: ${req.session.userId}: No fruit available to pick or lava juice could not be increased.`);
+      return res.status(400).send('No fruit available to pick or lava juice could not be increased.');
+    }
+    res.json({ message: 'Fruit successfully picked and lava juice increased.', fruitCount: result.fruitCount, lavaJuiceBalance: result.lavaJuiceBalance });
+  } catch (error) {
+    logger.error(`Error picking fruit for userId: ${req.session.userId}: ${error}`, error);
+    res.status(500).send('Error picking fruit');
+  }
+});
+
+router.post('/dragon/give-juice', isAuthenticated, async (req, res) => {
+  try {
+    const result = await userBalanceService.giveLavaJuiceToDragon(req.session.userId);
+    if (!result) {
+      logger.error(`Error giving lava juice to dragon for userId: ${req.session.userId}: Insufficient lava juice balance or no dragon egg found.`);
+      return res.status(400).send('Insufficient lava juice balance or no dragon egg found.');
+    }
+    res.json({ message: 'Lava juice given to dragon successfully.', experience: result.experience, energy: result.energy });
+  } catch (error) {
+    logger.error(`Error giving lava juice to dragon egg for userId: ${req.session.userId}: ${error}`, error);
+    res.status(500).send('Error giving lava juice to dragon egg');
+  }
+});
+
+router.post('/dragon/feed', isAuthenticated, async (req, res) => {
+  try {
+    const { dragonId } = req.body;
+    if (!dragonId) {
+      return res.status(400).send('Dragon ID is required.');
+    }
+    const dragon = await Dragon.findById(dragonId);
+    if (!dragon) {
+      return res.status(404).send('Dragon not found.');
+    }
+    if (dragon.userId.toString() !== req.session.userId) {
+      return res.status(403).send('Unauthorized access to the dragon.');
+    }
+    await dragon.feed(1); // Feed with default amount
+    res.json({ message: 'Dragon fed successfully.', energy: dragon.energy, experiencePoints: dragon.experiencePoints, stage: dragon.stage });
+  } catch (error) {
+    logger.error('Error feeding dragon:', error);
+    res.status(500).send('Error feeding dragon');
   }
 });
 

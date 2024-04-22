@@ -13,6 +13,7 @@ const { Server } = require("socket.io");
 const { isAuthenticated } = require('./routes/middleware/authMiddleware'); // Import isAuthenticated middleware
 const isAdmin = require('./routes/middleware/adminMiddleware'); // Import isAdmin middleware
 const Dragon = require('./models/Dragon'); // Import Dragon model
+const { checkAndGrowFruits } = require('./services/gardenService'); // Import checkAndGrowFruits function
 
 if (!process.env.DATABASE_URL || !process.env.SESSION_SECRET) {
   console.error("Error: config environment variables not set. Please create/edit .env configuration file.");
@@ -130,6 +131,14 @@ app.get("/dashboard", isAuthenticated, (req, res) => {
   res.render("dashboard");
 });
 
+// Schedule fruit growth check every hour
+setInterval(() => {
+  checkAndGrowFruits().catch(err => {
+    console.error('Error in scheduled fruit growth check:', err.message);
+    console.error(err.stack);
+  });
+}, 3600000); // 3600000 milliseconds = 1 hour
+
 // If no routes handled the request, it's a 404
 app.use((req, res, next) => {
   res.status(404).send("Page not found.");
@@ -141,6 +150,14 @@ app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send("There was an error serving your request.");
 });
+
+// Function to get the io instance
+function getIo() {
+  return io;
+}
+
+// Exporting getIo to be used in other parts of the application
+module.exports = { getIo };
 
 // Replace app.listen with server.listen
 server.listen(port, () => {

@@ -30,8 +30,14 @@ module.exports = {
     appendLog(message, 'INFO');
   },
   error: (message, error) => {
-    console.error(message, error);
-    appendLog(`${message} - ${error.message}\nStack: ${error.stack}`, 'ERROR');
+    console.error(message);
+    if (error) {
+      const errorMessage = error.message ? error.message : 'Error object is undefined';
+      const errorStack = error.stack ? `\nStack: ${error.stack}` : '';
+      appendLog(`${message} - ${errorMessage}${errorStack}`, 'ERROR');
+    } else {
+      appendLog(`${message} - Error object is undefined`, 'ERROR');
+    }
   },
   debug: (message) => {
     console.debug(message);

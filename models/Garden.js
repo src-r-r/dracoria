@@ -4,7 +4,8 @@ const gardenSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   treeType: { type: String, required: true },
   fruitCount: { type: Number, default: 0 },
-  lastHarvested: { type: Date, default: Date.now }
+  lastHarvested: { type: Date, default: Date.now },
+  fruitGrowthTimestamp: { type: Date, default: Date.now } // Added line for tracking growth timestamp
 });
 
 gardenSchema.methods.harvestFruit = async function() {
