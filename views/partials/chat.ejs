@@ -1,0 +1,53 @@
+<div id="chatCard" class="card">
+    <h3>Chat with Your Dragon</h3>
+
+    <% if (dragon) { %>
+        <input type="hidden" id="dragonId" value="<%= dragon._id %>">
+        <% } %>
+
+            <div id="conversationHistory"
+                style="height: 200px; overflow-y: scroll; background-color: #f2f2f2; padding: 10px; margin-bottom: 10px;">
+                <!-- Conversation history will be loaded here -->
+            </div>
+            <input type="text" id="messageInput" placeholder="Say something to your dragon..."
+                style="width: 70%; margin-right: 10px;">
+            <button onclick="sendMessage()">Send</button>
+            <button onclick="clearConversation()">Delete Chat</button>
+            <script>
+                document.getElementById('messageInput').addEventListener('keypress', function (event) {
+                    if (event.key === 'Enter') {
+                        event.preventDefault(); // Prevent the default action (scroll/move caret)
+                        sendMessage(); // Call your function to submit the text
+                    }
+                });
+
+                function sendMessage() {
+                    const message = document.getElementById('messageInput').value;
+                    const conversationHistory = document.getElementById('conversationHistory');
+                    const dragonId = document.getElementById('dragonId') ? document.getElementById('dragonId').value : null;
+
+                    if (!message || !dragonId) {
+                        alert('Message is empty or Dragon ID is missing.');
+                        return;
+                    }
+
+                    axios.post('/api/dragon/chat', { message, dragonId })
+                        .then(response => {
+                            const data = response.data;
+                            conversationHistory.innerHTML += `<div><strong>You:</strong> ${message}</div>`;
+                            conversationHistory.innerHTML += `<div><strong>Dragon:</strong> ${data.reply.dragonMessage}</div>`;
+                            conversationHistory.scrollTop = conversationHistory.scrollHeight;
+                            document.getElementById('messageInput').value = ''; // Clear input after sending
+                        })
+                        .catch(error => {
+                            console.error('Error sending message to dragon:', error);
+                            alert('Failed to send message. Please try again.');
+                        });
+                }
+
+                function clearConversation() {
+                    document.getElementById('conversationHistory').innerHTML = '';
+                    // Optionally, send a request to the server to clear history on the backend
+                }
+            </script>
+</div>

@@ -3,114 +3,34 @@
 <%- include('partials/_head.ejs') %>
 
   <body>
-    <%- include('partials/_header.ejs') %>
+    <%- include('partials/navbar.ejs') %>
       <main role="main" class="container mt-4">
-        <div class="text-center">
-          <h1>Dracoria</h1>
-          <% if (session && session.userId) { %>
-            <div id="dragonStatus">
-              <!-- Dragon status will be loaded here -->
-            </div>
-            <div id="gardenStatus">
-              <!-- Garden status will be loaded here -->
-            </div>
-            <div id="dragonInteraction">
-              <h3>Talk to your Dragon</h3>
-              <div id="conversationHistory"
-                style="height: 200px; overflow-y: scroll; background-color: #f2f2f2; padding: 10px; margin-bottom: 10px;">
-                <!-- Conversation history will be loaded here -->
-              </div>
-              <% if (dragon) { %>
-                <input type="hidden" id="dragonId" value="<%= dragon._id %>">
-                <% } %>
-                  <input type="text" id="messageInput" placeholder="Say something to your dragon..."
-                    style="width: 70%; margin-right: 10px;">
-                  <button onclick="sendMessage()">Send</button>
-                  <button onclick="fetch('/api/dragon/conversation', {method: 'DELETE'})">Delete Chat</button>
-
-            </div>
-            <% } else { %>
-              <p>Please <a href="/auth/login">login</a> to see your dragon and garden status and interact with your
-                dragon.</p>
-              <% } %>
+        <div class="stats-container">
+          <%- include('partials/dragon.ejs') %>
+            <%- include('partials/garden.ejs') %>
+              <%- include('partials/settings.ejs') %>
         </div>
+        <%- include('partials/chat.ejs') %>
       </main>
+      <%- include('partials/_footer.ejs') %>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="/js/main.js"></script>
+        <script src="/js/dragonInteractionIndex.js"></script>
+        <script>
+          function toggleCard(cardId) {
+            var card = document.getElementById(cardId);
+            card.classList.toggle('hidden');
+          }
+
+          function toggleTheme() {
+            // Implementation of theme toggle
+          }
+
+          function handleLoginLogout() {
+            // Implementation of login/logout functionality
+          }
+        </script>
   </body>
-  <%- include('partials/_footer.ejs') %>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="/js/main.js"></script>
-    <script src="/js/dragonInteractionIndex.js"></script>
-    <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        fetchConversationHistory();
-
-        document.getElementById('messageInput').addEventListener('keypress', function (event) {
-          console.log('Key pressed:', event.key)
-          if (event.key === 'Enter') {
-            event.preventDefault(); // prevent the default action (scroll / move caret)
-            sendMessage(); // call your function to submit the text
-          }
-        });
-
-        window.sendMessage = function () {
-          // disable the Send button
-          //document.getElementById('send').disabled = true;
-                                                                                        
-          const message = document.getElementById('messageInput').value;
-
-          // add message from user
-          document.getElementById('conversationHistory').innerHTML += `<div><strong>You:</strong> ${message}</div>`;
-
-          // scroll to the bottom of the conversation history
-          const conversationHistory = document.getElementById('conversationHistory');
-          conversationHistory.scrollTop = conversationHistory.scrollHeight;
-
-          document.getElementById('messageInput').value = ''; // Clear input after sending
-
-          const dragonId = document.getElementById('dragonId') ? document.getElementById('dragonId').value : null;
-          if (dragonId) {
-            axios.post('/api/dragon/chat', { message: message, dragonId: dragonId })
-              .then(response => {
-                const data = response.data;
-                console.log('Message from dragon:', data);
-
-                // add message from dragon
-                document.getElementById('conversationHistory').innerHTML += `<div><strong>Dragon:</strong> ${data.reply.dragonMessage}</div>`;
-
-                // scroll to the bottom of the conversation history
-                const conversationHistory = document.getElementById('conversationHistory');
-                conversationHistory.scrollTop = conversationHistory.scrollHeight;
-              })
-              .catch(error => {
-                console.error('Error sending message to dragon:', error);
-                alert('Failed to send message. Please try again.');
-              });
-          } else {
-            alert('Dragon ID is missing. Please ensure you have a dragon.');
-          }
-        };
-
-        function fetchConversationHistory() {
-          const dragonId = document.getElementById('dragonId') ? document.getElementById('dragonId').value : null;
-          if (dragonId) {
-            axios.get('/api/dragon/conversation?dragonId=' + dragonId)
-              .then(response => {
-                const conversation = response.data.conversation;
-                const historyElement = document.getElementById('conversationHistory');
-                conversation.forEach(msg => {
-                  historyElement.innerHTML += `<div><strong>${msg.sender}:</strong> ${msg.text}</div>`;
-                });
-              })
-              .catch(error => {
-                console.error('Error fetching conversation history:', error);
-                alert('Failed to fetch conversation history. Please try again.');
-              });
-          } else {
-            console.log('Dragon ID is missing for fetching conversation history.');
-          }
-        }
-      });
-    </script>
 
 </html>

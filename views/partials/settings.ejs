@@ -1,0 +1,37 @@
+<div id="settingsCard" class="card hidden">
+  <h3>Settings</h3>
+  <form id="settingsForm">
+    <div class="form-group">
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" placeholder="Enter your email" required>
+    </div>
+    <div class="form-group">
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" placeholder="Enter new password">
+    </div>
+    <div class="form-group">
+      <label for="notifications">Notifications:</label>
+      <input type="checkbox" id="notifications" name="notifications"> Enable Notifications
+    </div>
+    <div class="form-group">
+      <button type="button" onclick="updateSettings()">Update Settings</button>
+    </div>
+  </form>
+  <script>
+    function updateSettings() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const notifications = document.getElementById('notifications').checked;
+      // Validation logic can be added here
+
+      axios.post('/api/updateSettings', { email, password, notifications })
+        .then(response => {
+          alert('Settings updated successfully!');
+        })
+        .catch(error => {
+          console.error('Failed to update settings:', error);
+          alert('Failed to update settings. Please try again.');
+        });
+    }
+  </script>
+</div>

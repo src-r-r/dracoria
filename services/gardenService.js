@@ -2,7 +2,7 @@ const Garden = require('../models/Garden');
 const User = require('../models/User'); // Importing the User model
 const mongoose = require('mongoose');
 const logger = require('../utils/logger'); // Assuming there's a logger utility based on the comprehensive codebase insight principle
-const userBalanceService = require('./userBalanceService');
+const userBalanceService = require('./userService');
 
 async function harvestFruit(gardenId) {
   if (!mongoose.Types.ObjectId.isValid(gardenId)) {

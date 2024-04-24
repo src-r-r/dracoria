@@ -3,11 +3,26 @@ const router = express.Router();
 const { isAuthenticated } = require('./middleware/authMiddleware');
 const Dragon = require('../models/Dragon');
 const Garden = require('../models/Garden');
+const User = require('../models/User');
 const chatService = require('../services/chatService'); // Assuming chatService is implemented as described
 const gardenService = require('../services/gardenService');
 const dragonService = require('../services/dragonService');
-const userBalanceService = require('../services/userBalanceService'); // Import userBalanceService
+const userService = require('../services/userService'); // Import userBalanceService
 const logger = require('../utils/logger'); // Import logger utility
+
+router.get('/user/status', isAuthenticated, async (req, res) => {
+  try {
+    const user = await User.findOne({ _id: req.session.userId });
+    if (!user) {
+      logger.info('No user found for the session.');
+      return res.status(404).send('User not found');
+    }
+    res.json(user);
+  } catch (error) {
+    logger.error('Error fetching user status:', error);
+    res.status(500).send('Error fetching user status');
+  }
+});
 
 router.get('/dragon/status', isAuthenticated, async (req, res) => {
   try {
@@ -120,9 +135,9 @@ router.post('/garden/pick-fruit', isAuthenticated, async (req, res) => {
   }
 });
 
-router.post('/dragon/give-juice', isAuthenticated, async (req, res) => {
+router.post('/dragon/feed', isAuthenticated, async (req, res) => {
   try {
-    const result = await dragonService.giveLavaJuiceToDragon(req.session.userId);
+    const result = await dragonService.feedDragon(req.session.userId);
     if (!result) {
       logger.error(`Error giving lava juice to dragon for userId: ${req.session.userId}: Insufficient lava juice balance or no dragon egg found.`);
       return res.status(400).send('Insufficient lava juice balance or no dragon egg found.');
@@ -131,27 +146,6 @@ router.post('/dragon/give-juice', isAuthenticated, async (req, res) => {
   } catch (error) {
     logger.error(`Error giving lava juice to dragon egg for userId: ${req.session.userId}: ${error}`, error);
     res.status(500).send('Error giving lava juice to dragon egg');
-  }
-});
-
-router.post('/dragon/feed', isAuthenticated, async (req, res) => {
-  try {
-    const { dragonId } = req.body;
-    if (!dragonId) {
-      return res.status(400).send('Dragon ID is required.');
-    }
-    const dragon = await Dragon.findById(dragonId);
-    if (!dragon) {
-      return res.status(404).send('Dragon not found.');
-    }
-    if (dragon.userId.toString() !== req.session.userId) {
-      return res.status(403).send('Unauthorized access to the dragon.');
-    }
-    await dragon.feed(1); // Feed with default amount
-    res.json({ message: 'Dragon fed successfully.', energy: dragon.energy, experiencePoints: dragon.experiencePoints, stage: dragon.stage });
-  } catch (error) {
-    logger.error('Error feeding dragon:', error);
-    res.status(500).send('Error feeding dragon');
   }
 });
 
