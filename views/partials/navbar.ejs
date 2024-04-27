@@ -8,6 +8,10 @@
     <div class="navbar-right">
         <span id="lavaJuiceCount">Lava Juice: 100</span>
         <button onclick="toggleTheme()">Toggle Theme</button>
-        <button onclick="handleLoginLogout()">Login/Logout</button>
+        <% if (session && session.userId) { %>
+            <button onclick="window.location.href='/auth/logout'">Logout</button>
+        <% } else { %>
+            <button onclick="window.location.href='/auth/login'">Login</button>
+        <% } %>
     </div>
 </nav>

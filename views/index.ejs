@@ -27,9 +27,16 @@
             // Implementation of theme toggle
           }
 
+          // login/logout button
           function handleLoginLogout() {
-            // Implementation of login/logout functionality
+            const isLoggedIn = <% if (session && session.userId) { %> true <% } else { %> false <% } %>;
+            if (isLoggedIn) {
+              window.location.href = '/auth/logout';
+            } else {
+              window.location.href = '/auth/login';
+            }
           }
+
         </script>
   </body>
 
