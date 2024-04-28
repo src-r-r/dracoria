@@ -42,14 +42,24 @@ const chatWithDragon = async (userId, dragonId, messageText) => {
     conversation.messages.push({ text: messageText, sender: 'user' });
     await conversation.save();
 
-    logger.info(`User message added to conversation for dragonId: ${dragonId}`);
     logger.info(`Chatting with dragon for dragonId: ${dragonId} ${messageText}`);
+
+    // 
 
     const response = await openai.chat.completions.create({
       model: "gpt-4-turbo",
       //messages: conversation.messages.map(m => `${m.sender === 'user' ? 'User:' : 'Dragon:'} ${m.text}`).join('\n') + '\nDragon:',
       messages: [
+        // add system message
         { role: "system", content: "You are an unhatched dragon embryo talking to a human you just imprinted on telepathically. You are curious to learn everything you can about the outside world." },
+
+        // add messages from conversation history
+        ...conversation.messages.map(m => ({
+          role: m.sender === 'user' ? 'user' : 'assistant',
+          content: m.text
+        })),
+
+        // add user message
         { role: "user", content: messageText },
       ],
     });
@@ -64,6 +74,7 @@ const chatWithDragon = async (userId, dragonId, messageText) => {
 
     return { userMessage: messageText, dragonMessage: dragonResponse };
   } catch (error) {
+    console.log("ERROR: " + error);
     logger.error('Error chatting with dragon:', error.message, error.stack);
     throw error;
   }
