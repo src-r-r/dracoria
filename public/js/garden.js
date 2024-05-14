@@ -26,6 +26,6 @@ function updateGarden() {
         })
         .catch((error) => {
             console.error('Error fetching garden data:', error);
-            alert('Error fetching garden data. Please try again.');
+            //alert('Error fetching garden data. Please try again.');
         });
 }

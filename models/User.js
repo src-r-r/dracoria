@@ -9,7 +9,9 @@ const userSchema = new mongoose.Schema({
   dragon: { type: mongoose.Schema.Types.ObjectId, ref: 'Dragon' },
   garden: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Garden' }],
   isAdmin: { type: Boolean, default: false }, // Indicates if the user has admin privileges
-  lavaJuice: { type: Number, default: 0 }
+  lavaJuice: { type: Number, default: 0 },
+  walletAddress: { type: String, unique: true, required: true, sparse: true },
+  favoriteDragon: { type: mongoose.Schema.Types.ObjectId, ref: 'Dragon' },
 });
 
 userSchema.pre('save', function (next) {

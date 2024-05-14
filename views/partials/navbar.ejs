@@ -10,8 +10,9 @@
         <button onclick="toggleTheme()">Toggle Theme</button>
         <% if (session && session.userId) { %>
             <button onclick="window.location.href='/auth/logout'">Logout</button>
-        <% } else { %>
-            <button onclick="window.location.href='/auth/login'">Login</button>
-        <% } %>
+            <% } else { %>
+                <button onclick="window.location.href='/auth/login'">Login</button>
+                <% } %>
+                    <button onclick="connectWallet()">Connect Wallet</button>
     </div>
 </nav>

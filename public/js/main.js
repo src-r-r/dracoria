@@ -1,3 +1,26 @@
+
+
+async function connectWallet() {
+  try {
+    // Open wallet selection modal.
+    const provider = await web3Modal.connect();
+
+    // Create an instance of ethers.js using the provided
+    const ethersProvider = new ethers.providers.Web3Provider(provider);
+
+    // Get signer
+    const signer = ethersProvider.getSigner();
+
+    // You can now use this in your app to check wallet details and send transactions
+    const address = await signer.getAddress();
+    console.log("Connected address:", address);
+
+  } catch (error) {
+    console.error("Could not get a wallet connection", error);
+  }
+}
+
+
 const socket = io();
 
 document.addEventListener('DOMContentLoaded', function () {
