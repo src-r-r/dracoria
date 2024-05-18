@@ -7,11 +7,11 @@
     </div>
     <div class="navbar-right">
         <span id="lavaJuiceCount">Lava Juice: 100</span>
-        <button onclick="toggleTheme()">Toggle Theme</button>
+        <button class="button primary" onclick="toggleTheme()">Toggle Theme</button>
         <% if (session && session.userId) { %>
-            <button onclick="window.location.href='/auth/logout'">Logout</button>
+            <button class="button primary" onclick="window.location.href='/auth/logout'">Logout</button>
         <% } else { %>
-            <button onclick="window.location.href='/auth/login'">Login</button>
+            <button class="button secondary" onclick="window.location.href='/auth/login'">Login</button>
         <% } %>
     </div>
 </nav>

@@ -6,13 +6,15 @@
         <% } %>
 
             <div id="conversationHistory"
-                style="height: 200px; overflow-y: scroll; background-color: #f2f2f2; padding: 10px; margin-bottom: 10px;">
+                class="input p-2 m-4 is-light is-text-dark"
+                style="height: 200px; overflow-y: scroll;">
                 <!-- Conversation history will be loaded here -->
             </div>
-            <input type="text" id="messageInput" placeholder="Say something to your dragon..."
-                style="width: 70%; margin-right: 10px;">
-            <button onclick="sendMessage()">Send</button>
-            <button onclick="clearConversation()">Delete Chat</button>
+            <input class="input is-light is-text-dark p-2 m-4" type="text" id="messageInput" placeholder="Say something to your dragon...">
+            <div>
+                <button class="button is-success primary large m-4" onclick="sendMessage()">Send</button>
+                <button class="button is-danger primary large m-4" onclick="clearConversation()">Delete Chat</button>
+            </div>
             <script>
                 document.getElementById('messageInput').addEventListener('keypress', function (event) {
                     if (event.key === 'Enter') {
